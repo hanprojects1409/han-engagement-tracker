@@ -1,318 +1,289 @@
 import {
-    db,
-      ref,
-        get,
-          set,
-            onValue
-            } from "./firebase.js";
+db,
+ref,
+get,
+set,
+onValue
+} from "./firebase.js";
 
 const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modal-title");
 const openPostBtn = document.getElementById("open-post-btn");
 const closeModal = document.getElementById("close-modal");
 
-const commentModal =
-document.getElementById("comment-modal");
+const commentModal = document.getElementById("comment-modal");
+const closeCommentModal = document.getElementById("close-comment-modal");
 
-const closeCommentModal =
-document.getElementById("close-comment-modal");
-
-const pickCommentBtn =
-document.getElementById("pick-comment-btn");
-
-const copyCommentBtn =
-document.getElementById("copy-comment-btn");
-
-const generatedComment =
-document.getElementById("generated-comment");
-
-const languageSelect =
-document.getElementById("comment-language");
-
-const openInstagramBtn =
-document.getElementById("open-instagram-btn");
-
-let currentPost = null;
+const pickCommentBtn = document.getElementById("pick-comment-btn");
+const copyCommentBtn = document.getElementById("copy-comment-btn");
+const generatedComment = document.getElementById("generated-comment");
+const languageSelect = document.getElementById("comment-language");
+const openInstagramBtn = document.getElementById("open-instagram-btn");
 
 const container = document.getElementById("posts-container");
 
+let currentPost = null;
+
 window.posts.forEach(post => {
-  const card = document.createElement("div");
+const card = document.createElement("div");
 
-  card.classList.add("post-card");
+card.classList.add("post-card");
 
-  card.innerHTML = `
-    <div class="post-info">
-        <h3>${post.id}</h3>
-            <p>${post.platform}</p>
-            
-                <div class="post-stats">
-                    ❤️ <span id="like-${post.id}">0</span>
-💬 <span id="comment-${post.id}">0</span>
-📤 <span id="share-${post.id}">0</span>
-🔖 <span id="save-${post.id}">0</span>
-🔁 <span id="repost-${post.id}">0</span>
+card.innerHTML = `
+<div class="post-info">
+<h3>${post.id}</h3>
+<p>${post.platform}</p>
 
-<div class="engagement-badge"
-     id="badge-${post.id}">
+  <div class="post-stats">
+    ❤️ <span id="like-${post.id}">0</span>
+    💬 <span id="comment-${post.id}">0</span>
+    📤 <span id="share-${post.id}">0</span>
+    🔖 <span id="save-${post.id}">0</span>
+    🔁 <span id="repost-${post.id}">0</span>
+
+    <div
+      class="engagement-badge"
+      id="badge-${post.id}">
+    </div>
+  </div>
+
+  <div class="rating">⭐</div>
 </div>
-                                                          
-                                                                      
-                                                                        </div>
-                                                                        
-                                                                          <div class="rating">⭐</div>
-                                                                          `;
 
-  card.addEventListener("click", () => {
-    openModal(post);
-  });
+`;
 
-  container.appendChild(card);
+card.addEventListener("click", () => {
+openModal(post);
+});
 
-  watchPostStats(post.id);
+container.appendChild(card);
+
+watchPostStats(post.id);
 });
 
 function openModal(post) {
-  currentPost = post;
+currentPost = post;
 
-  modalTitle.textContent = post.id;
+modalTitle.textContent = post.id;
 
-  openPostBtn.onclick = () => {
-    window.open(post.link, "_blank");
-  };
+openPostBtn.onclick = () => {
+window.open(post.link, "_blank");
+};
 
-  document
-  .querySelectorAll(".action-btn")
-  .forEach(btn => {
+document
+.querySelectorAll("#modal .action-btn")
+.forEach(btn => {
+const action = btn.dataset.action;
+const key = "post-${post.id}-${action}";
+const completed = localStorage.getItem(key) === "true";
 
-    const action = btn.dataset.action;
+  btn.classList.toggle("completed", completed);
+});
 
-    const completed =
-      localStorage.getItem(
-        `post-${post.title}-${action}`
-      );
-
-    btn.classList.toggle(
-      "completed",
-      completed === "true"
-    );
-  });
-  modal.classList.add("active");
+modal.classList.add("active");
 }
 
-document.querySelectorAll(".action-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const action = btn.dataset.action;
+document.addEventListener("click", async event => {
+const btn = event.target.closest(".action-btn");
 
-    if (!currentPost) return;
+if (!btn || !currentPost) return;
 
-    if (action === "comment") {
-      commentModal.classList.add("active");
-      return;
-    }
+event.stopPropagation();
 
-    if (action === "share") {
-        const wasCompleted =
-            btn.classList.contains("completed");
+const action = btn.dataset.action;
 
-              navigator.clipboard.writeText(
-                  currentPost.link
-                    );
+if (action === "comment") {
+commentModal.classList.add("active");
+return;
+}
 
-                      btn.classList.add("completed");
+if (action === "share") {
+try {
+await navigator.clipboard.writeText(currentPost.link);
+} catch {}
 
-                        localStorage.setItem(
-                            `post-${currentPost.id}-share`,
-                                true
-                                  );
+const wasCompleted = btn.classList.contains("completed");
 
-                                    if (!wasCompleted) {
-                                        addGlobalInteraction(
-                                              currentPost.id,
-                                                    "share"
-                                                        );
-                                                          }
+btn.classList.add("completed");
 
-                                                            return;
-                                                            }
-    });
+localStorage.setItem(
+  `post-${currentPost.id}-share`,
+  "true"
+);
 
-  if (
-      action === "like" ||
-        action === "save" ||
-          action === "repost"
-          ) {
-            const wasCompleted =
-                btn.classList.contains("completed");
+if (!wasCompleted) {
+  addGlobalInteraction(
+    currentPost.id,
+    "share"
+  );
+}
 
-                  btn.classList.toggle("completed");
+return;
 
-                    const key =
-                        `post-${currentPost.id}-${action}`;
+}
 
-                          localStorage.setItem(
-                              key,
-                                  btn.classList.contains("completed")
-                                    );
-                                        if (!wasCompleted) {
-                                            addGlobalInteraction(
-                                                  currentPost.id,
-                                                        action
-                                                            );
-                                                              }
+if (
+action === "like" ||
+action === "save" ||
+action === "repost"
+) {
+const wasCompleted =
+btn.classList.contains("completed");
 
-                                                                return;
-                                                                }
+btn.classList.toggle("completed");
+
+const completed =
+  btn.classList.contains("completed");
+
+localStorage.setItem(
+  `post-${currentPost.id}-${action}`,
+  completed ? "true" : "false"
+);
+
+if (!wasCompleted && completed) {
+  addGlobalInteraction(
+    currentPost.id,
+    action
+  );
+}
+
+}
 });
 
 closeModal.addEventListener("click", () => {
-  modal.classList.remove("active");
+modal.classList.remove("active");
 });
 
 closeCommentModal.addEventListener("click", () => {
-  commentModal.classList.remove("active");
+commentModal.classList.remove("active");
 });
 
 pickCommentBtn.addEventListener("click", () => {
-  const language = languageSelect.value;
+const language = languageSelect.value;
+const comments = window.comments[language];
 
-  const comments = window.comments[language];
+if (!comments || comments.length === 0) {
+generatedComment.textContent =
+"No comments available for this language.";
+return;
+}
 
-  if (!comments || comments.length === 0) {
-    generatedComment.textContent =
-      "No comments available for this language.";
-    return;
-  }
+const random =
+Math.floor(Math.random() * comments.length);
 
-  const random =
-    Math.floor(Math.random() * comments.length);
-
-  generatedComment.textContent =
-    comments[random];
+generatedComment.textContent =
+comments[random];
 });
 
-copyCommentBtn.addEventListener("click", () => {
+copyCommentBtn.addEventListener("click", async () => {
+if (!currentPost) return;
 
-    navigator.clipboard.writeText(
-        generatedComment.textContent
-          );
+try {
+await navigator.clipboard.writeText(
+generatedComment.textContent
+);
+} catch {}
 
-            const commentBtn =
-                document.querySelector(
-                      '[data-action="comment"]'
-                          );
+const commentBtn =
+document.querySelector(
+'#modal .action-btn[data-action="comment"]'
+);
 
-                            const wasCompleted =
-                                commentBtn.classList.contains(
-                                      "completed"
-                                          );
+if (!commentBtn) return;
 
-                                            commentBtn.classList.add(
-                                                "completed"
-                                                  );
+const wasCompleted =
+commentBtn.classList.contains("completed");
 
-                                                    localStorage.setItem(
-                                                        `post-${currentPost.id}-comment`,
-                                                            true
-                                                              );
+commentBtn.classList.add("completed");
 
-                                                                if (!wasCompleted) {
-                                                                    addGlobalInteraction(
-                                                                          currentPost.id,
-                                                                                "comment"
-                                                                                    );
-                                                                                      }
+localStorage.setItem(
+"post-${currentPost.id}-comment",
+"true"
+);
 
-                                                                                      });
+if (!wasCompleted) {
+addGlobalInteraction(
+currentPost.id,
+"comment"
+);
+}
+});
 
 openInstagramBtn.addEventListener("click", () => {
-  if (!currentPost) return;
+if (!currentPost) return;
 
-  window.open(currentPost.link, "_blank");
+window.open(currentPost.link, "_blank");
 });
 
-async function addGlobalInteraction(
-  postId,
-    action
-    ) {
-      const postRef = ref(
-          db,
-              `posts/${postId}/${action}`
-                );
+async function addGlobalInteraction(postId, action) {
+const postRef =
+ref(db, "posts/${postId}/${action}");
 
-                  const snapshot =
-                      await get(postRef);
+const snapshot = await get(postRef);
 
-                        let count = 0;
+let count = 0;
 
-                          if (snapshot.exists()) {
-                              count = snapshot.val();
-                                }
+if (snapshot.exists()) {
+count = snapshot.val();
+}
 
-                                  await set(postRef, count + 1);
-                                  }
+await set(postRef, count + 1);
+}
 
 function watchPostStats(postId) {
-    const postRef =
-        ref(db, `posts/${postId}`);
+const postRef =
+ref(db, "posts/${postId}");
 
-          onValue(postRef, snapshot => {
-              const data =
-                    snapshot.val() || {};
+onValue(postRef, snapshot => {
+const data = snapshot.val() || {};
 
-                        const likes =
-                              data.like || 0;
+const likes = data.like || 0;
+const comments = data.comment || 0;
+const shares = data.share || 0;
+const saves = data.save || 0;
+const reposts = data.repost || 0;
 
-                                  const comments =
-                                        data.comment || 0;
+document.getElementById(
+  `like-${postId}`
+).textContent = likes;
 
-                                            const shares =
-                                                  data.share || 0;
+document.getElementById(
+  `comment-${postId}`
+).textContent = comments;
 
-                                                      const saves =
-                                                            data.save || 0;
+document.getElementById(
+  `share-${postId}`
+).textContent = shares;
 
-                                                                const reposts =
-                                                                      data.repost || 0;
+document.getElementById(
+  `save-${postId}`
+).textContent = saves;
 
-                                                                          document.getElementById(
-                                                                                `like-${postId}`
-                                                                                    ).textContent = likes;
+document.getElementById(
+  `repost-${postId}`
+).textContent = reposts;
 
-                                                                                        document.getElementById(
-                                                                                              `comment-${postId}`
-                                                                                                  ).textContent = comments;
+const total =
+  likes +
+  comments +
+  shares +
+  saves +
+  reposts;
 
-                                                                                                      document.getElementById(
-                                                                                                            `share-${postId}`
-                                                                                                                ).textContent = shares;
+const badge =
+  document.getElementById(
+    `badge-${postId}`
+  );
 
-                                                                                                                    document.getElementById(
-                                                                                                                          `save-${postId}`
-                                                                                                                              ).textContent = saves;
+if (!badge) return;
 
-                                                                                                                                  document.getElementById(
-                                                                                                                                        `repost-${postId}`
-                                                                                                                                            ).textContent = reposts;
+if (total < 25) {
+  badge.textContent =
+    "🔥 Needs engagement";
+} else {
+  badge.textContent =
+    "✨ Active";
+}
 
-                                                                                                                                                const total =
-                                                                                                                                                      likes +
-                                                                                                                                                            comments +
-                                                                                                                                                                  shares +
-                                                                                                                                                                        saves +
-                                                                                                                                                                              reposts;
-
-                                                                                                                                                                                  const badge =
-                                                                                                                                                                                        document.getElementById(
-                                                                                                                                                                                                `badge-${postId}`
-                                                                                                                                                                                                      );
-
-                                                                                                                                                                                                          if (total < 25) {
-                                                                                                                                                                                                                badge.textContent =
-                                                                                                                                                                                                                        "🔥 Needs engagement";
-                                                                                                                                                                                                                            } else {
-                                                                                                                                                                                                                                  badge.textContent =
-                                                                                                                                                                                                                                          "✨ Active";
-                                                                                                                                                                                                                                              }
-                                                                                                                                                                                                                                                });
-                                                                                                                                                                                                                                                }
+});
+}
