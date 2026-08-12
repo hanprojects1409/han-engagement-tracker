@@ -577,89 +577,262 @@ function watchPostStats(postId) {
 
 async function addGlobalInteraction(postId, action) {
 
-  alert("1. Entró a Firebase");
-
-  const postRef =
-    ref(
-      db,
-      `posts/${postId}/${action}`
-    );
-
-  alert("2. Creó la referencia");
+  const postRef = ref(
+    db,
+    `posts/${postId}/${action}`
+  );
 
   try {
 
-    const snapshot =
-      await get(postRef);
-
-    alert("3. Firebase respondió");
+    const snapshot = await get(postRef);
 
     let count = 0;
 
     if (snapshot.exists()) {
-
-      count =
-        Number(snapshot.val());
-
+      count = Number(snapshot.val());
     }
-
-    alert("4. Valor actual: " + count);
 
     await set(
       postRef,
       count + 1
     );
 
-    alert("5. Firebase guardó: " + (count + 1));
-
     await updateGlobalCounters();
-
-    alert("6. Contador actualizado");
 
   } catch (error) {
 
-    alert(
-      "ERROR Firebase: " +
-      error.message
+    console.error(
+      "Error guardando interacción:",
+      error
     );
-
-    console.error(error);
 
   }
 
 }
 
+
+function watchPostStats(postId) {
+
+  const postRef = ref(
+    db,
+    `posts/${postId}`
+  );
+
+  onValue(
+    postRef,
+    snapshot => {
+
+      const data =
+        snapshot.val() || {};
+
+      const likes =
+        Number(data.like || 0);
+
+      const comments =
+        Number(data.comment || 0);
+
+      const shares =
+        Number(data.share || 0);
+
+      const saves =
+        Number(data.save || 0);
+
+      const reposts =
+        Number(data.repost || 0);
+
+
+      const likeElement =
+        document.getElementById(
+          `like-${postId}`
+        );
+
+      const commentElement =
+        document.getElementById(
+          `comment-${postId}`
+        );
+
+      const shareElement =
+        document.getElementById(
+          `share-${postId}`
+        );
+
+      const saveElement =
+        document.getElementById(
+          `save-${postId}`
+        );
+
+      const repostElement =
+        document.getElementById(
+          `repost-${postId}`
+        );
+
+
+      if (likeElement) {
+        likeElement.textContent =
+          likes;
+      }
+
+      if (commentElement) {
+        commentElement.textContent =
+          comments;
+      }
+
+      if (shareElement) {
+        shareElement.textContent =
+          shares;
+      }
+
+      if (saveElement) {
+        saveElement.textContent =
+          saves;
+      }
+
+      if (repostElement) {
+        repostElement.textContent =
+          reposts;
+      }
+
+
+      const total =
+        likes +
+        comments +
+        shares +
+        saves +
+        reposts;
+
+
+      const badge =
+        document.getElementById(
+          `badge-${postId}`
+        );
+
+      if (!badge) return;
+
+
+      if (total < 25) {
+
+        badge.textContent =
+          "🔥 Needs engagement";
+
+      } else {
+
+        badge.textContent =
+          "✨ Active";
+
+      }
+
+    }
+  );
+
+}
+
+
+async function updateGlobalCounters() {
+
+  const totalPosts =
+    window.posts.length;
+
+  let likes = 0;
+  let comments = 0;
+  let shares = 0;
+  let saves = 0;
+
+
+  for (const post of window.posts) {
+
+    const postRef =
+      ref(
+        db,
+        `posts/${post.id}`
+      );
+
+    try {
+
+      const snapshot =
+        await get(postRef);
+
+      if (!snapshot.exists()) {
+        continue;
+      }
+
+      const data =
+        snapshot.val();
+
+      likes +=
+        Number(data.like || 0);
+
+      comments +=
+        Number(data.comment || 0);
+
+      shares +=
+        Number(data.share || 0);
+
+      saves +=
+        Number(data.save || 0);
+
+    } catch (error) {
+
+      console.error(
+        "Error leyendo:",
+        post.id,
+        error
+      );
+
+    }
+
+  }
+
+
   const likeCounter =
-    document.getElementById("total-like");
+    document.getElementById(
+      "total-like"
+    );
 
   const commentCounter =
-    document.getElementById("total-comment");
+    document.getElementById(
+      "total-comment"
+    );
 
   const shareCounter =
-    document.getElementById("total-share");
+    document.getElementById(
+      "total-share"
+    );
 
   const saveCounter =
-    document.getElementById("total-save");
+    document.getElementById(
+      "total-save"
+    );
 
 
   if (likeCounter) {
+
     likeCounter.textContent =
       `${likes}/${totalPosts}`;
+
   }
 
   if (commentCounter) {
+
     commentCounter.textContent =
       `${comments}/${totalPosts}`;
+
   }
 
   if (shareCounter) {
+
     shareCounter.textContent =
       `${shares}/${totalPosts}`;
+
   }
 
   if (saveCounter) {
+
     saveCounter.textContent =
       `${saves}/${totalPosts}`;
+
+  }
+
 }
+
 
 updateGlobalCounters();
