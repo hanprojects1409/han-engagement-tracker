@@ -633,7 +633,16 @@ async function updateFirebaseInteraction(
       db,
       `users/${user.uid}/posts/${postId}/${action}`
     );
-    
+
+        const userSnapshot =
+      await get(
+        userInteractionRef
+      );
+
+    const userCompleted =
+      userSnapshot.exists() &&
+      userSnapshot.val() === true;
+
   try {
 
     const snapshot =
