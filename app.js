@@ -3,7 +3,8 @@ import {
   ref,
   get,
   set,
-  onValue
+  onValue,
+  getCurrentUser
 } from "./firebase.js";
 
 const modal =
