@@ -18,7 +18,7 @@ import {
 
 const firebaseConfig = {
 
-  apiKey: "AIzaSyAa9NumsNv8tCPm50e2GmNIvL7gT01Boo",
+  apiKey: "AIzaSyAa9NumsNv8tCPm50e2GmNIvL7g1T01Boo",
 
   authDomain: "han-tracker.firebaseapp.com",
 
@@ -44,6 +44,12 @@ export const db = getDatabase(app);
 
 export const auth = getAuth(app);
 
+
+export function getCurrentUser() {
+
+  return auth.currentUser;
+
+}
 
 export const anonymousUser =
   signInAnonymously(auth)
