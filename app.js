@@ -628,6 +628,12 @@ async function updateFirebaseInteraction(
       `posts/${postId}/${action}`
     );
 
+    const userInteractionRef =
+    ref(
+      db,
+      `users/${user.uid}/posts/${postId}/${action}`
+    );
+    
   try {
 
     const snapshot =
