@@ -611,6 +611,17 @@ async function updateFirebaseInteraction(
   change
 ) {
 
+    const user = getCurrentUser();
+
+  if (!user) {
+
+    console.error(
+      "Firebase user not available"
+    );
+
+    return null;
+
+  }
   const interactionRef =
     ref(
       db,
