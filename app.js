@@ -6,11 +6,6 @@ import {
   onValue
 } from "./firebase.js";
 
-
-// ============================================================
-// ELEMENTOS DEL HTML
-// ============================================================
-
 const modal =
   document.getElementById("modal");
 
@@ -58,16 +53,8 @@ const container =
   document.getElementById("posts-container");
 
 
-// ============================================================
-// ESTADO ACTUAL
-// ============================================================
-
 let currentPost = null;
 
-
-// ============================================================
-// HASHTAGS FIJOS
-// ============================================================
 
 const fixedHashtags = [
   "#HAN",
@@ -85,17 +72,8 @@ if (hashtagsContainer) {
 
 }
 
-
-// ============================================================
-// DATOS PARA CONTADORES GLOBALES
-// ============================================================
-
 const globalStats = {};
 
-
-// ============================================================
-// CREAR POSTS
-// ============================================================
 
 if (
   Array.isArray(window.posts) &&
@@ -186,10 +164,6 @@ if (
 }
 
 
-// ============================================================
-// ABRIR MODAL DEL POST
-// ============================================================
-
 function openModal(post) {
 
   currentPost = post;
@@ -254,10 +228,6 @@ function openModal(post) {
 }
 
 
-// ============================================================
-// BOTONES DE ACCIÓN DE CADA POST
-// ============================================================
-
 document
   .querySelectorAll(
     "#modal .action-btn"
@@ -277,10 +247,6 @@ document
           btn.dataset.action;
 
 
-        // ----------------------------------------------------
-        // COMMENT
-        // ----------------------------------------------------
-
         if (action === "comment") {
 
           if (commentModal) {
@@ -295,10 +261,6 @@ document
 
         }
 
-
-        // ----------------------------------------------------
-        // SHARE
-        // ----------------------------------------------------
 
         if (action === "share") {
 
@@ -347,9 +309,6 @@ document
 
 }
 
-        // ----------------------------------------------------
-        // LIKE / SAVE / REPOST
-        // ----------------------------------------------------
 
         if (
           action === "like" ||
@@ -404,10 +363,6 @@ document
   });
 
 
-// ============================================================
-// CERRAR MODAL PRINCIPAL
-// ============================================================
-
 if (closeModal) {
 
   closeModal.addEventListener(
@@ -426,11 +381,6 @@ if (closeModal) {
   );
 
 }
-
-
-// ============================================================
-// CERRAR MODAL DE COMENTARIOS
-// ============================================================
 
 if (closeCommentModal) {
 
@@ -451,10 +401,6 @@ if (closeCommentModal) {
 
 }
 
-
-// ============================================================
-// GENERADOR DE COMENTARIOS
-// ============================================================
 
 if (pickCommentBtn) {
 
@@ -506,10 +452,6 @@ if (pickCommentBtn) {
 
 }
 
-
-// ============================================================
-// COPIAR COMENTARIO
-// ============================================================
 
 if (copyCommentBtn) {
 
@@ -592,9 +534,6 @@ if (copyCommentBtn) {
 
 }
 
-// ============================================================
-// ABRIR INSTAGRAM
-// ============================================================
 
 if (openInstagramBtn) {
 
@@ -617,10 +556,6 @@ if (openInstagramBtn) {
 
 }
 
-
-// ============================================================
-// COPIAR HASHTAGS
-// ============================================================
 
 if (copyHashtagsBtn) {
 
@@ -668,10 +603,6 @@ if (copyHashtagsBtn) {
 
 }
 
-
-// ============================================================
-// GUARDAR INTERACCIÓN EN FIREBASE
-// ============================================================
 
 async function updateFirebaseInteraction(
   postId,
@@ -747,10 +678,6 @@ async function updateFirebaseInteraction(
 }
 
 
-// ============================================================
-// ESCUCHAR ESTADÍSTICAS DE CADA POST
-// ============================================================
-
 function watchPostStats(postId) {
 
   const postRef =
@@ -798,10 +725,6 @@ function watchPostStats(postId) {
         );
 
 
-      // ----------------------------------------------
-      // GUARDAR DATOS PARA CONTADORES GLOBALES
-      // ----------------------------------------------
-
       globalStats[postId] = {
 
         like: likes,
@@ -817,9 +740,6 @@ function watchPostStats(postId) {
       };
 
 
-      // ----------------------------------------------
-      // CONTADORES DEL POST
-      // ----------------------------------------------
 
       const likeElement =
         document.getElementById(
@@ -891,9 +811,6 @@ function watchPostStats(postId) {
       }
 
 
-      // ----------------------------------------------
-      // BADGE DE ENGAGEMENT
-      // ----------------------------------------------
 
       const total =
         likes +
@@ -911,7 +828,7 @@ function watchPostStats(postId) {
 
       if (badge) {
 
-        if (total < 25) {
+        if (total < 250) {
 
           badge.textContent =
             "🔥 Needs engagement";
@@ -925,11 +842,6 @@ function watchPostStats(postId) {
 
       }
 
-
-      // ----------------------------------------------
-      // ACTUALIZAR CONTADORES GLOBALES
-      // ----------------------------------------------
-
       updateGlobalCounters();
 
     }
@@ -937,10 +849,6 @@ function watchPostStats(postId) {
 
 }
 
-
-// ============================================================
-// CONTADORES GLOBALES
-// ============================================================
 
 function updateGlobalCounters() {
 
@@ -1046,9 +954,5 @@ function updateGlobalCounters() {
 
 }
 
-
-// ============================================================
-// INICIALIZACIÓN
-// ============================================================
 
 updateGlobalCounters();

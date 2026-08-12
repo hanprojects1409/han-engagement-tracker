@@ -39,17 +39,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-
-// ============================================================
-// FIREBASE DATABASE
-// ============================================================
-
 export const db = getDatabase(app);
 
-
-// ============================================================
-// FIREBASE AUTHENTICATION
-// ============================================================
 
 export const auth = getAuth(app);
 
@@ -76,11 +67,6 @@ export const anonymousUser =
       throw error;
 
     });
-
-
-// ============================================================
-// EXPORTS
-// ============================================================
 
 export {
   ref,
