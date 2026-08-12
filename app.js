@@ -183,12 +183,14 @@ document
 
           if (!wasCompleted) {
 
-            addGlobalInteraction(
+            await addGlobalInteraction(
               currentPost.id,
               "share"
-            );
+  );
 
-          }
+  updateGlobalCounters();
+
+}
 
           return;
         }
@@ -220,16 +222,18 @@ document
           );
 
           if (
-            !wasCompleted &&
-            completed
-          ) {
+          !wasCompleted &&
+        completed
+    ) {
 
-            addGlobalInteraction(
-              currentPost.id,
-              action
-            );
+            await addGlobalInteraction(
+             currentPost.id,
+             action
+    );
 
-          }
+  updateGlobalCounters();
+
+}
 
           return;
         }
@@ -408,10 +412,12 @@ if (copyHashtagsBtn) {
 
 }
 
-
 async function addGlobalInteraction(
+
   postId,
+
   action
+
 ) {
 
   const postRef =
@@ -428,7 +434,7 @@ async function addGlobalInteraction(
   if (snapshot.exists()) {
 
     count =
-      snapshot.val();
+      Number(snapshot.val());
 
   }
 
@@ -437,8 +443,11 @@ async function addGlobalInteraction(
     count + 1
   );
 
-}
+  alert("Firebase guardó: " + (count + 1));
 
+  await updateGlobalCounters();
+
+}
 
 function watchPostStats(postId) {
 
@@ -577,23 +586,36 @@ async function updateGlobalCounters() {
 
   for (const post of window.posts) {
 
-    const postRef =
-      ref(db, `posts/${post.id}`);
+    const postRef = ref(
+      db,
+      `posts/${post.id}`
+    );
 
-    const snapshot =
-      await get(postRef);
+    try {
 
-    if (!snapshot.exists()) continue;
+      const snapshot = await get(postRef);
 
-    const data =
-      snapshot.val();
+      if (!snapshot.exists()) {
+        continue;
+      }
 
-    likes += data.like || 0;
-    comments += data.comment || 0;
-    shares += data.share || 0;
-    saves += data.save || 0;
+      const data = snapshot.val();
+
+      likes += Number(data.like || 0);
+      comments += Number(data.comment || 0);
+      shares += Number(data.share || 0);
+      saves += Number(data.save || 0);
+
+    } catch (error) {
+
+      console.error(
+        "Error leyendo:",
+        post.id,
+        error
+      );
+
+    }
   }
-
 
   const likeCounter =
     document.getElementById("total-like");
@@ -609,34 +631,25 @@ async function updateGlobalCounters() {
 
 
   if (likeCounter) {
-
     likeCounter.textContent =
       `${likes}/${totalPosts}`;
   }
 
   if (commentCounter) {
-
     commentCounter.textContent =
       `${comments}/${totalPosts}`;
   }
 
   if (shareCounter) {
-
     shareCounter.textContent =
       `${shares}/${totalPosts}`;
   }
 
   if (saveCounter) {
-
     saveCounter.textContent =
       `${saves}/${totalPosts}`;
   }
 
 }
 
-alert(window.posts.length);
-
-document.getElementById("total-like").textContent = "0/2";
-document.getElementById("total-comment").textContent = "0/2";
-document.getElementById("total-share").textContent = "0/2";
-document.getElementById("total-save").textContent = "0/2";
+updateGlobalCounters();
