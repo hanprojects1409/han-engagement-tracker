@@ -606,52 +606,72 @@ if (copyHashtagsBtn) {
 
 
 async function updateFirebaseInteraction(
+
   postId,
+
   action,
+
   change
+
 ) {
 
-    const user = getCurrentUser();
+  const user = getCurrentUser();
+
 
   if (!user) {
-
-    console.error(
-      "Firebase user not available"
-    );
 
     return null;
 
   }
+
+
   const interactionRef =
     ref(
       db,
       `posts/${postId}/${action}`
     );
 
-    const userInteractionRef =
+
+  const userInteractionRef =
     ref(
       db,
       `users/${user.uid}/posts/${postId}/${action}`
     );
 
-        const userSnapshot =
+
+  try {
+
+
+    const userSnapshot =
       await get(
         userInteractionRef
       );
+
 
     const userCompleted =
       userSnapshot.exists() &&
       userSnapshot.val() === true;
 
-        console.log(
-      "User interaction state:",
-      postId,
-      action,
+    if (
+      change === 1 &&
       userCompleted
-    );
-  
-    
-  try {
+    ) {
+
+      return null;
+
+    }
+
+
+    if (
+      change === -1 &&
+      !userCompleted
+    ) {
+
+      return null;
+
+    }
+
+
 
     const snapshot =
       await get(
@@ -676,7 +696,6 @@ async function updateFirebaseInteraction(
       currentValue + change;
 
 
-    // Nunca permitir números negativos
     if (newValue < 0) {
 
       newValue = 0;
@@ -684,31 +703,33 @@ async function updateFirebaseInteraction(
     }
 
 
+
     await set(
       interactionRef,
       newValue
     );
 
-    console.log(
-      "Firebase updated:",
-      postId,
-      action,
-      newValue
+
+
+    await set(
+      userInteractionRef,
+      change === 1
     );
+
 
     return newValue;
 
 
   } catch (error) {
 
-  console.error(
-    "Error saving interaction to Firebase:",
-    error
-  );
+    console.error(
+      "Error saving interaction to Firebase:",
+      error
+    );
 
-  return null;
+    return null;
 
-}
+  }
 
 }
 
@@ -990,4 +1011,4 @@ function updateGlobalCounters() {
 }
 
 
-updateGlobalCounters();
+updateGlobalCounters()
