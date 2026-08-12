@@ -1,125 +1,126 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-        <title>HAN Engagement Tracker</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta charset="UTF-8">
+<title>HAN Engagement Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-            <link rel="stylesheet" href="style.css">
-            </head>
-            <body>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 <header class="hero">
 
-      <p class="subtitle">
-          HAN JISUNG • ENGAGEMENT PROJECT
-            </p>
+<p class="subtitle">
+HAN JISUNG • ENGAGEMENT PROJECT
+</p>
 
-              <h1>
-                  HAN JISUNG
-                      <span>ENGAGEMENT TRACKER</span>
-                        </h1>
+<h1>
+   HAN JISUNG
+   <span>ENGAGEMENT TRACKER</span>
+</h1>
 
-                        </header>
+ </header>
 
-                        <nav class="tabs">
+<nav class="tabs">
 
-                          <button>ALL</button>
-                            <button>IG</button>
-                              <button>X</button>
-                                <button>TIKTOK</button>
-                                  <button>YT</button>
+<button>ALL</button>
+<button>IG</button>
+<button>X</button>
+<button>TIKTOK</button>
+<button>YT</button>
 
-                                  </nav>
+</nav>
 
-                                  <section class="progress-section">
+<section class="progress-section">
 
-                                    <h2>PROGRESS</h2>
+<h2>PROGRESS</h2>
 
-                                      <div class="progress-bar">
-                                            <div class="progress-fill"></div>
-                                              </div>
+<div class="progress-bar">
+<div class="progress-fill"></div>
 
-                                              </section>
+</div>
 
-                                              <section class="stats">
+</section>
 
-                                                <div class="stat-box">
-                                                      <span>LIKE</span>
-                                                            <strong>0/0</strong>
-                                                              </div>
+<section class="stats">
 
-                                                                <div class="stat-box">
-                                                                      <span>COMMENT</span>
-                                                                            <strong>0/0</strong>
-                                                                              </div>
+<div class="stat-box">
+  <span>LIKE</span>
+  <strong>0/0</strong>
+</div>
 
-                                                                                <div class="stat-box">
-                                                                                      <span>SHARE</span>
-                                                                                            <strong>0/0</strong>
-                                                                                              </div>
+<div class="stat-box">
+  <span>COMMENT</span>
+  <strong>0/0</strong>
+</div>
 
-                                                                                                <div class="stat-box">
-                                                                                                      <span>SAVE</span>
-                                                                                                            <strong>0/0</strong>
-                                                                                                              </div>
+<div class="stat-box">
+  <span>SHARE</span>
+  <strong>0/0</strong>
+</div>
 
-                                                                                                              </section>
+<div class="stat-box">
+  <span>SAVE</span>
+  <strong>0/0</strong>
+</div>
 
-                                                                                                              <section class="posts-section">
+</section>
 
-                                                                                                                <h3 class="section-title">
-                                                                                                                    SELECT A POST TO SUPPORT
-                                                                                                                      </h3>
+<section class="posts-section">
 
-                                                                                                                        <div id="posts-container"></div>
+<h3 class="section-title">
+  SELECT A POST TO SUPPORT
+</h3>
 
-                                                                                                                    </section>
+<div id="posts-container"></div>
+
+</section>
                                                                                                                     
-                                                                                                                    <div id="modal" class="modal">
+<div id="modal" class="modal">
 
-                                                                                                                        <div class="modal-content">
+<div class="modal-content">
 
-                                                                                                                            <button id="close-modal">
-                                                                                                                                  ✕
-                                                                                                                                      </button>
+<button id="close-modal">
+✕
+</button>
 
-                                                                                                                                          <h2 id="modal-title">
-                                                                                                                                                Post Title
-                                                                                                                                                    </h2>
+<h2 id="modal-title">
+  Post Title
+</h2>
 
-                                                                                                                                                        <button id="open-post-btn">
-                                                                                                                                                              Open Post
-                                                                                                                                                                  </button>
+<button id="open-post-btn">
+  Open Post
+</button>
 
-                                                                                                                                                                      <div class="actions">
+<div class="actions">
 
-                                                                                                                                                                            <button class="action-btn" data-action="like">
-                                                                                                                                                                                    🤍 Like
-                                                                                                                                                                                          </button>
+<button class="action-btn" data-action="like">
+  ❤️ Like
+</button>
 
-                                                                                                                                                                                                <button class="action-btn" data-action="comment">
-                                                                                                                                                                                                        💬 Comment
-                                                                                                                                                                                                              </button>
+<button class="action-btn" data-action="comment">
+  💬 Comment
+</button>
 
-                                                                                                                                                                                                                    <button class="action-btn" data-action="share">
-                                                                                                                                                                                                                            📤 Share
-                                                                                                                                                                                                                                  </button>
+<button class="action-btn" data-action="share">
+  📤 Share
+</button>
 
-                                                                                                                                                                                                                                        <button class="action-btn" data-action="save">
-                                                                                                                                                                                                                                                🔖 Save
-                                                                                                                                                                                                                                                      </button>
+<button class="action-btn" data-action="save">
+  🔖 Save
+</button>
 
-                                                                                                                                                                                                                                                            <button class="action-btn" data-action="repost">
-                                                                                                                                                                                                                                                                    🔁 Repost
-                                                                                                                                                                                                                                                                          </button>
+<button class="action-btn" data-action="repost">
+  🔁 Repost
+</button>
 
-                                                                                                                                                                                                                                                                              </div>
+</div>
 
-                                                                                                                                                                                                                                                                                </div>
+</div>
 
-                                                                                                                                                                                                                                                                                </div>
+</div>
 
 <div id="comment-modal" class="modal">
 
@@ -172,9 +173,9 @@
 
 </div>
 
-     <script src="data/posts.js"></script>
-     <script src="data/comments.js"></script>
-     <script type="module" src="app.js"></script>                                                                                                             
+<script src="data/posts.js"></script>
+<script src="data/comments.js"></script>
+<script type="module" src="./app.js"></script>                                                                                       
 
 </body>
 </html>
