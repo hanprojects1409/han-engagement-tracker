@@ -222,14 +222,18 @@ document
           );
 
           if (
-          !wasCompleted &&
-        completed
-    ) {
+  !wasCompleted &&
+  completed
+) {
 
-            await addGlobalInteraction(
-             currentPost.id,
-             action
-    );
+  alert("voy a Firebase");
+
+  await addGlobalInteraction(
+    currentPost.id,
+    action
+  );
+
+}
 
   updateGlobalCounters();
 
@@ -237,8 +241,6 @@ document
 
           return;
         }
-
-      }
     );
 
   });
@@ -443,8 +445,6 @@ async function addGlobalInteraction(
     count + 1
   );
 
-  alert("Firebase guardó: " + (count + 1));
-
   await updateGlobalCounters();
 
 }
@@ -575,47 +575,59 @@ function watchPostStats(postId) {
 
 }
 
-async function updateGlobalCounters() {
+async function addGlobalInteraction(postId, action) {
 
-  const totalPosts = window.posts.length;
+  alert("1. Entró a Firebase");
 
-  let likes = 0;
-  let comments = 0;
-  let shares = 0;
-  let saves = 0;
-
-  for (const post of window.posts) {
-
-    const postRef = ref(
+  const postRef =
+    ref(
       db,
-      `posts/${post.id}`
+      `posts/${postId}/${action}`
     );
 
-    try {
+  alert("2. Creó la referencia");
 
-      const snapshot = await get(postRef);
+  try {
 
-      if (!snapshot.exists()) {
-        continue;
-      }
+    const snapshot =
+      await get(postRef);
 
-      const data = snapshot.val();
+    alert("3. Firebase respondió");
 
-      likes += Number(data.like || 0);
-      comments += Number(data.comment || 0);
-      shares += Number(data.share || 0);
-      saves += Number(data.save || 0);
+    let count = 0;
 
-    } catch (error) {
+    if (snapshot.exists()) {
 
-      console.error(
-        "Error leyendo:",
-        post.id,
-        error
-      );
+      count =
+        Number(snapshot.val());
 
     }
+
+    alert("4. Valor actual: " + count);
+
+    await set(
+      postRef,
+      count + 1
+    );
+
+    alert("5. Firebase guardó: " + (count + 1));
+
+    await updateGlobalCounters();
+
+    alert("6. Contador actualizado");
+
+  } catch (error) {
+
+    alert(
+      "ERROR Firebase: " +
+      error.message
+    );
+
+    console.error(error);
+
   }
+
+}
 
   const likeCounter =
     document.getElementById("total-like");
@@ -648,8 +660,6 @@ async function updateGlobalCounters() {
   if (saveCounter) {
     saveCounter.textContent =
       `${saves}/${totalPosts}`;
-  }
-
 }
 
 updateGlobalCounters();
