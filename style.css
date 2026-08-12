@@ -380,3 +380,94 @@ box-shadow: 0 0 0 3px rgba(166, 123, 91, .12);
   border-radius: 22px !important;
   padding: 34px !important;
 }
+
+/* Comment generator final overrides */
+
+#comment-modal {
+  background: rgba(20, 16, 13, 0.55);
+  padding: 20px;
+}
+
+#comment-modal .modal-content {
+  width: min(92%, 620px) !important;
+  max-height: 88vh !important;
+  padding: 34px !important;
+  border-radius: 22px !important;
+  background: #fcfaf7 !important;
+  box-shadow: 0 25px 70px rgba(59, 48, 40, 0.22) !important;
+}
+
+#comment-modal h2 {
+  margin-bottom: 24px !important;
+  font-family: "Cormorant Garamond", serif !important;
+  font-size: 32px !important;
+  font-weight: 600 !important;
+  letter-spacing: 2px !important;
+  color: #3b3028 !important;
+}
+
+#comment-language {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 100% !important;
+  height: 52px !important;
+  padding: 0 45px 0 18px !important;
+  margin-bottom: 18px !important;
+  border: 1px solid #d8cabb !important;
+  border-radius: 14px !important;
+  background-color: #f4f1ea !important;
+  color: #3b3028 !important;
+  font-family: "Inter", sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 1px !important;
+}
+
+#comment-language:focus {
+  outline: none !important;
+  border-color: #a67b5b !important;
+  box-shadow: 0 0 0 3px rgba(166, 123, 91, .12) !important;
+}
+
+#generated-comment {
+  min-height: 120px !important;
+  margin: 10px 0 22px !important;
+  padding: 25px 30px !important;
+  border: none !important;
+  border-radius: 18px !important;
+  background: #f4f1ea !important;
+  color: #3b3028 !important;
+  font-family: "Inter", sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+}
+
+.comment-buttons {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+.comment-buttons button {
+  border-radius: 12px !important;
+  padding: 13px 16px !important;
+  border: 1px solid #ddd4c8 !important;
+  background: white !important;
+  color: #3b3028 !important;
+  font-family: "Inter", sans-serif !important;
+}
+
+#pick-comment-btn {
+  grid-column: 1 / -1 !important;
+  background: #4a3b2e !important;
+  color: white !important;
+  border-color: #4a3b2e !important;
+}
+
+#close-comment-modal {
+  color: #8c8177 !important;
+}
+
+#comment-modal .modal-content {
+  background: red !important;
+}
