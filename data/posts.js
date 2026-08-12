@@ -14,10 +14,9 @@ window.posts = [
                                             image: "images/post2.jpg"
                                             },
     {
-        id: "han_003",
-            title: "Instagram Post 3",
-                platform: "Instagram",
-                    link: "https://instagram.com/",
-                        image: "images/post3.jpg"
-                        }
+  id: "test_003",
+  title: "Test Firebase UID",
+  platform: "Instagram",
+  link: "https://www.instagram.com/"
+}
                     ];
