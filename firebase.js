@@ -90,9 +90,9 @@ export const anonymousUser =
 
       throw error;
 
-    });
+    })
                                                                               
-                                                                              .catch(error => {
+  .catch(error => {
 
   console.error(
     "Anonymous authentication error:",
