@@ -635,7 +635,7 @@ async function updateFirebaseInteraction(
   const userInteractionRef =
     ref(
       db,
-      `users/${user.uid}/posts/${postId}/${action}`
+      `posts/${postId}/interactions/${user.uid}/${action}`
     );
 
 
@@ -651,6 +651,9 @@ async function updateFirebaseInteraction(
     const userCompleted =
       userSnapshot.exists() &&
       userSnapshot.val() === true;
+
+
+
 
     if (
       change === 1 &&
@@ -670,7 +673,6 @@ async function updateFirebaseInteraction(
       return null;
 
     }
-
 
 
     const snapshot =
@@ -704,16 +706,22 @@ async function updateFirebaseInteraction(
 
 
 
-    await set(
-      interactionRef,
-      newValue
-    );
+    const updates = {};
 
 
+    updates[
+      `posts/${postId}/${action}`
+    ] = newValue;
 
-    await set(
-      userInteractionRef,
-      change === 1
+
+    updates[
+      `posts/${postId}/interactions/${user.uid}/${action}`
+    ] = change === 1;
+
+
+    await update(
+      ref(db),
+      updates
     );
 
 
