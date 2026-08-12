@@ -12,5 +12,12 @@ window.posts = [
                                     platform: "Instagram",
                                         link: "https://instagram.com/",
                                             image: "images/post2.jpg"
-                                            }
-                                            ];
+                                            },
+    {
+        id: "han_003",
+            title: "Instagram Post 3",
+                platform: "Instagram",
+                    link: "https://instagram.com/",
+                        image: "images/post3.jpg"
+                        }
+                    ];

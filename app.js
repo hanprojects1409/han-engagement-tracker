@@ -6,25 +6,68 @@ import {
   onValue
 } from "./firebase.js";
 
-const modal = document.getElementById("modal");
-const modalTitle = document.getElementById("modal-title");
-const openPostBtn = document.getElementById("open-post-btn");
-const closeModal = document.getElementById("close-modal");
 
-const commentModal = document.getElementById("comment-modal");
-const closeCommentModal = document.getElementById("close-comment-modal");
+// ============================================================
+// ELEMENTOS DEL HTML
+// ============================================================
 
-const pickCommentBtn = document.getElementById("pick-comment-btn");
-const copyCommentBtn = document.getElementById("copy-comment-btn");
-const generatedComment = document.getElementById("generated-comment");
-const languageSelect = document.getElementById("comment-language");
-const openInstagramBtn = document.getElementById("open-instagram-btn");
+const modal =
+  document.getElementById("modal");
 
-const copyHashtagsBtn = document.getElementById("copy-hashtags-btn");
-const hashtagsContainer = document.getElementById("hashtags");
-const container = document.getElementById("posts-container");
+const modalTitle =
+  document.getElementById("modal-title");
+
+const openPostBtn =
+  document.getElementById("open-post-btn");
+
+const closeModal =
+  document.getElementById("close-modal");
+
+
+const commentModal =
+  document.getElementById("comment-modal");
+
+const closeCommentModal =
+  document.getElementById("close-comment-modal");
+
+
+const pickCommentBtn =
+  document.getElementById("pick-comment-btn");
+
+const copyCommentBtn =
+  document.getElementById("copy-comment-btn");
+
+const generatedComment =
+  document.getElementById("generated-comment");
+
+const languageSelect =
+  document.getElementById("comment-language");
+
+const openInstagramBtn =
+  document.getElementById("open-instagram-btn");
+
+
+const copyHashtagsBtn =
+  document.getElementById("copy-hashtags-btn");
+
+const hashtagsContainer =
+  document.getElementById("hashtags");
+
+
+const container =
+  document.getElementById("posts-container");
+
+
+// ============================================================
+// ESTADO ACTUAL
+// ============================================================
 
 let currentPost = null;
+
+
+// ============================================================
+// HASHTAGS FIJOS
+// ============================================================
 
 const fixedHashtags = [
   "#HAN",
@@ -32,320 +75,690 @@ const fixedHashtags = [
   "@Tods"
 ];
 
+
 if (hashtagsContainer) {
-  hashtagsContainer.innerHTML = fixedHashtags
-    .map(tag => `<span>${tag}</span>`)
-    .join("");
+
+  hashtagsContainer.innerHTML =
+    fixedHashtags
+      .map(tag => `<span>${tag}</span>`)
+      .join("");
+
 }
 
-function createPosts() {
-  if (!container || !Array.isArray(window.posts)) return;
 
-  container.innerHTML = "";
+// ============================================================
+// DATOS PARA CONTADORES GLOBALES
+// ============================================================
+
+const globalStats = {};
+
+
+// ============================================================
+// CREAR POSTS
+// ============================================================
+
+if (
+  Array.isArray(window.posts) &&
+  container
+) {
 
   window.posts.forEach(post => {
-    const card = document.createElement("div");
 
-    card.classList.add("post-card");
+    const card =
+      document.createElement("div");
+
+
+    card.classList.add(
+      "post-card"
+    );
+
 
     card.innerHTML = `
+
       <div class="post-info">
+
         <h3>${post.id}</h3>
+
         <p>${post.platform}</p>
 
         <div class="post-stats">
-          ❤️ <span id="like-${post.id}">0</span>
-          💬 <span id="comment-${post.id}">0</span>
-          📤 <span id="share-${post.id}">0</span>
-          🔖 <span id="save-${post.id}">0</span>
-          🔁 <span id="repost-${post.id}">0</span>
+
+          ❤️
+          <span id="like-${post.id}">
+            0
+          </span>
+
+          💬
+          <span id="comment-${post.id}">
+            0
+          </span>
+
+          📤
+          <span id="share-${post.id}">
+            0
+          </span>
+
+          🔖
+          <span id="save-${post.id}">
+            0
+          </span>
+
+          🔁
+          <span id="repost-${post.id}">
+            0
+          </span>
 
           <div
             class="engagement-badge"
             id="badge-${post.id}">
           </div>
+
         </div>
 
-        <div class="rating">⭐</div>
+        <div class="rating">
+          ⭐
+        </div>
+
       </div>
+
     `;
 
-    card.addEventListener("click", () => {
-      openModal(post);
-    });
+
+    card.addEventListener(
+      "click",
+      () => {
+
+        openModal(post);
+
+      }
+    );
+
 
     container.appendChild(card);
 
-    watchPostStats(post.id);
+
+    watchPostStats(
+      post.id
+    );
+
   });
+
 }
 
+
+// ============================================================
+// ABRIR MODAL DEL POST
+// ============================================================
+
 function openModal(post) {
+
   currentPost = post;
 
+
   if (modalTitle) {
-    modalTitle.textContent = post.id;
+
+    modalTitle.textContent =
+      post.title || post.id;
+
   }
+
 
   if (openPostBtn) {
+
     openPostBtn.onclick = () => {
-      window.open(post.link, "_blank");
+
+      window.open(
+        post.link,
+        "_blank"
+      );
+
     };
+
   }
 
+
   document
-    .querySelectorAll("#modal .action-btn")
+    .querySelectorAll(
+      "#modal .action-btn"
+    )
     .forEach(btn => {
-      const action = btn.dataset.action;
-      const key = `post-${post.id}-${action}`;
+
+      const action =
+        btn.dataset.action;
+
+
+      const key =
+        `post-${post.id}-${action}`;
+
+
       const completed =
         localStorage.getItem(key) === "true";
 
-      btn.classList.toggle("completed", completed);
+
+      btn.classList.toggle(
+        "completed",
+        completed
+      );
+
     });
+
 
   if (modal) {
-    modal.classList.add("active");
+
+    modal.classList.add(
+      "active"
+    );
+
   }
+
 }
+
+
+// ============================================================
+// BOTONES DE ACCIÓN DE CADA POST
+// ============================================================
 
 document
-  .querySelectorAll("#modal .action-btn")
+  .querySelectorAll(
+    "#modal .action-btn"
+  )
   .forEach(btn => {
-    btn.addEventListener("click", async () => {
-      if (!currentPost) return;
 
-      const action = btn.dataset.action;
+    btn.addEventListener(
+      "click",
+      async () => {
 
-      if (action === "comment") {
-        if (commentModal) {
-          commentModal.classList.add("active");
-        }
-        return;
-      }
-
-      if (action === "share") {
-        const wasCompleted =
-          btn.classList.contains("completed");
-
-        try {
-          await navigator.clipboard.writeText(
-            currentPost.link
-          );
-        } catch {}
-
-        btn.classList.add("completed");
-
-        localStorage.setItem(
-          `post-${currentPost.id}-share`,
-          "true"
-        );
-
-        if (!wasCompleted) {
-          await addGlobalInteraction(
-            currentPost.id,
-            "share",
-            1
-          );
+        if (!currentPost) {
+          return;
         }
 
-        return;
-      }
 
-      if (
-        action === "like" ||
-        action === "save" ||
-        action === "repost"
-      ) {
-        const wasCompleted =
-          btn.classList.contains("completed");
+        const action =
+          btn.dataset.action;
 
-        btn.classList.toggle("completed");
 
-        const completed =
-          btn.classList.contains("completed");
+        // ----------------------------------------------------
+        // COMMENT
+        // ----------------------------------------------------
 
-        localStorage.setItem(
-          `post-${currentPost.id}-${action}`,
-          completed ? "true" : "false"
-        );
+        if (action === "comment") {
 
-        if (!wasCompleted && completed) {
-          await addGlobalInteraction(
+          if (commentModal) {
+
+            commentModal.classList.add(
+              "active"
+            );
+
+          }
+
+          return;
+
+        }
+
+
+        // ----------------------------------------------------
+        // SHARE
+        // ----------------------------------------------------
+
+        if (action === "share") {
+
+  const wasCompleted =
+    btn.classList.contains(
+      "completed"
+    );
+
+  try {
+
+    await navigator.clipboard.writeText(
+      currentPost.link
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Can't copy link:",
+      error
+    );
+
+    return;
+
+  }
+
+  if (!wasCompleted) {
+
+    btn.classList.add(
+      "completed"
+    );
+
+    localStorage.setItem(
+      `post-${currentPost.id}-share`,
+      "true"
+    );
+
+    await updateFirebaseInteraction(
+      currentPost.id,
+      "share",
+      1
+    );
+
+  }
+
+  return;
+
+}
+
+        // ----------------------------------------------------
+        // LIKE / SAVE / REPOST
+        // ----------------------------------------------------
+
+        if (
+          action === "like" ||
+          action === "save" ||
+          action === "repost"
+        ) {
+
+          const wasCompleted =
+            btn.classList.contains(
+              "completed"
+            );
+
+
+          const completed =
+            !wasCompleted;
+
+
+          btn.classList.toggle(
+            "completed",
+            completed
+          );
+
+
+          localStorage.setItem(
+            `post-${currentPost.id}-${action}`,
+            completed
+              ? "true"
+              : "false"
+          );
+
+
+          const change =
+            completed
+              ? 1
+              : -1;
+
+
+          await updateFirebaseInteraction(
             currentPost.id,
             action,
-            1
+            change
           );
+
+
+          return;
+
         }
 
-        if (wasCompleted && !completed) {
-          await addGlobalInteraction(
-            currentPost.id,
-            action,
-            -1
-          );
-        }
       }
-    });
+    );
+
   });
+
+
+// ============================================================
+// CERRAR MODAL PRINCIPAL
+// ============================================================
 
 if (closeModal) {
-  closeModal.addEventListener("click", () => {
-    modal.classList.remove("active");
-  });
+
+  closeModal.addEventListener(
+    "click",
+    () => {
+
+      if (modal) {
+
+        modal.classList.remove(
+          "active"
+        );
+
+      }
+
+    }
+  );
+
 }
+
+
+// ============================================================
+// CERRAR MODAL DE COMENTARIOS
+// ============================================================
 
 if (closeCommentModal) {
-  closeCommentModal.addEventListener("click", () => {
-    commentModal.classList.remove("active");
-  });
+
+  closeCommentModal.addEventListener(
+    "click",
+    () => {
+
+      if (commentModal) {
+
+        commentModal.classList.remove(
+          "active"
+        );
+
+      }
+
+    }
+  );
+
 }
+
+
+// ============================================================
+// GENERADOR DE COMENTARIOS
+// ============================================================
 
 if (pickCommentBtn) {
-  pickCommentBtn.addEventListener("click", () => {
-    const language = languageSelect.value;
-    const comments = window.comments?.[language];
 
-    if (!comments || comments.length === 0) {
+  pickCommentBtn.addEventListener(
+    "click",
+    () => {
+
+      if (
+        !languageSelect ||
+        !generatedComment
+      ) {
+        return;
+      }
+
+
+      const language =
+        languageSelect.value;
+
+
+      const comments =
+        window.comments?.[language];
+
+
+      if (
+        !comments ||
+        comments.length === 0
+      ) {
+
+        generatedComment.textContent =
+          "No comments available for this language.";
+
+        return;
+
+      }
+
+
+      const randomIndex =
+        Math.floor(
+          Math.random() *
+          comments.length
+        );
+
+
       generatedComment.textContent =
-        "No comments available for this language.";
-      return;
+        comments[randomIndex];
+
     }
+  );
 
-    const randomIndex =
-      Math.floor(Math.random() * comments.length);
-
-    generatedComment.textContent =
-      comments[randomIndex];
-  });
 }
 
+
+// ============================================================
+// COPIAR COMENTARIO
+// ============================================================
+
 if (copyCommentBtn) {
+
   copyCommentBtn.addEventListener(
     "click",
     async () => {
-      if (!currentPost) return;
+
+      if (!currentPost) {
+        return;
+      }
+
+      if (!generatedComment) {
+        return;
+      }
 
       const text =
         generatedComment.textContent.trim();
 
       if (
         !text ||
-        text === "Generate a comment" ||
-        text === "No comments available for this language."
+        text === "Generate a comment"
       ) {
         return;
       }
 
       try {
-        await navigator.clipboard.writeText(text);
-      } catch {}
+
+        await navigator.clipboard.writeText(
+          text
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Error copying comment:",
+          error
+        );
+
+        return;
+
+      }
 
       const commentBtn =
         document.querySelector(
           '#modal .action-btn[data-action="comment"]'
         );
 
-      if (!commentBtn) return;
+      if (!commentBtn) {
+        return;
+      }
 
       const wasCompleted =
-        commentBtn.classList.contains("completed");
+        commentBtn.classList.contains(
+          "completed"
+        );
 
-      commentBtn.classList.add("completed");
+      // Marcar como completado
+      commentBtn.classList.add(
+        "completed"
+      );
 
       localStorage.setItem(
         `post-${currentPost.id}-comment`,
         "true"
       );
 
+      // Solo sumar una vez
       if (!wasCompleted) {
-        await addGlobalInteraction(
+
+        await updateFirebaseInteraction(
           currentPost.id,
           "comment",
           1
         );
+
       }
+
     }
   );
+
 }
 
+// ============================================================
+// ABRIR INSTAGRAM
+// ============================================================
+
 if (openInstagramBtn) {
+
   openInstagramBtn.addEventListener(
     "click",
     () => {
-      if (!currentPost) return;
+
+      if (!currentPost) {
+        return;
+      }
+
 
       window.open(
         currentPost.link,
         "_blank"
       );
+
     }
   );
+
 }
 
+
+// ============================================================
+// COPIAR HASHTAGS
+// ============================================================
+
 if (copyHashtagsBtn) {
+
   copyHashtagsBtn.addEventListener(
     "click",
     async () => {
+
       const text =
         fixedHashtags.join(" ");
 
+
       try {
-        await navigator.clipboard.writeText(text);
+
+        await navigator.clipboard.writeText(
+          text
+        );
+
 
         copyHashtagsBtn.textContent =
           "🌟 Hashtags copied";
 
-        setTimeout(() => {
-          copyHashtagsBtn.textContent =
-            "📋 Copy hashtags";
-        }, 1500);
-      } catch {}
+
+        setTimeout(
+          () => {
+
+            copyHashtagsBtn.textContent =
+              "📋 Copy hashtags";
+
+          },
+          1500
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Couldn't load hashtags:",
+          error
+        );
+
+      }
+
     }
   );
+
 }
 
-async function addGlobalInteraction(postId, action) {
 
-  const postRef = ref(
-    db,
-    `posts/${postId}/${action}`
-  );
+// ============================================================
+// GUARDAR INTERACCIÓN EN FIREBASE
+// ============================================================
+
+async function updateFirebaseInteraction(
+  postId,
+  action,
+  change
+) {
+
+  const interactionRef =
+    ref(
+      db,
+      `posts/${postId}/${action}`
+    );
 
   try {
 
-    const snapshot = await get(postRef);
+    const snapshot =
+      await get(
+        interactionRef
+      );
 
-    let count = 0;
+
+    let currentValue = 0;
+
 
     if (snapshot.exists()) {
 
-      count = Number(snapshot.val());
+      currentValue =
+        Number(
+          snapshot.val()
+        );
 
     }
 
+
+    let newValue =
+      currentValue + change;
+
+
+    // Nunca permitir números negativos
+    if (newValue < 0) {
+
+      newValue = 0;
+
+    }
+
+
     await set(
-      postRef,
-      count + 1
+      interactionRef,
+      newValue
     );
+
+    console.log(
+      "Firebase updated:",
+      postId,
+      action,
+      newValue
+    );
+
+    return newValue;
+
 
   } catch (error) {
 
-    console.error(
-      "Error loading interaction:",
-      error
-    );
+  console.error(
+    "Error saving interaction to Firebase:",
+    error
+  );
 
-  }
+  return null;
 
 }
 
+}
+
+
+// ============================================================
+// ESCUCHAR ESTADÍSTICAS DE CADA POST
+// ============================================================
+
 function watchPostStats(postId) {
 
-  const postRef = ref(
-    db,
-    `posts/${postId}`
-  );
+  const postRef =
+    ref(
+      db,
+      `posts/${postId}`
+    );
+
 
   onValue(
     postRef,
@@ -354,41 +767,83 @@ function watchPostStats(postId) {
       const data =
         snapshot.val() || {};
 
+
       const likes =
-        Number(data.like || 0);
+        Number(
+          data.like || 0
+        );
+
 
       const comments =
-        Number(data.comment || 0);
+        Number(
+          data.comment || 0
+        );
+
 
       const shares =
-        Number(data.share || 0);
+        Number(
+          data.share || 0
+        );
+
 
       const saves =
-        Number(data.save || 0);
+        Number(
+          data.save || 0
+        );
+
 
       const reposts =
-        Number(data.repost || 0);
+        Number(
+          data.repost || 0
+        );
 
+
+      // ----------------------------------------------
+      // GUARDAR DATOS PARA CONTADORES GLOBALES
+      // ----------------------------------------------
+
+      globalStats[postId] = {
+
+        like: likes,
+
+        comment: comments,
+
+        share: shares,
+
+        save: saves,
+
+        repost: reposts
+
+      };
+
+
+      // ----------------------------------------------
+      // CONTADORES DEL POST
+      // ----------------------------------------------
 
       const likeElement =
         document.getElementById(
           `like-${postId}`
         );
 
+
       const commentElement =
         document.getElementById(
           `comment-${postId}`
         );
+
 
       const shareElement =
         document.getElementById(
           `share-${postId}`
         );
 
+
       const saveElement =
         document.getElementById(
           `save-${postId}`
         );
+
 
       const repostElement =
         document.getElementById(
@@ -403,12 +858,14 @@ function watchPostStats(postId) {
 
       }
 
+
       if (commentElement) {
 
         commentElement.textContent =
           comments;
 
       }
+
 
       if (shareElement) {
 
@@ -417,12 +874,14 @@ function watchPostStats(postId) {
 
       }
 
+
       if (saveElement) {
 
         saveElement.textContent =
           saves;
 
       }
+
 
       if (repostElement) {
 
@@ -431,6 +890,10 @@ function watchPostStats(postId) {
 
       }
 
+
+      // ----------------------------------------------
+      // BADGE DE ENGAGEMENT
+      // ----------------------------------------------
 
       const total =
         likes +
@@ -446,99 +909,146 @@ function watchPostStats(postId) {
         );
 
 
-      if (!badge) return;
+      if (badge) {
 
+        if (total < 25) {
 
-      if (total < 25) {
+          badge.textContent =
+            "🔥 Needs engagement";
 
-        badge.textContent =
-          "🔥 Needs engagement";
+        } else {
 
-      } else {
+          badge.textContent =
+            "✨ Active";
 
-        badge.textContent =
-          "✨ Active";
+        }
 
       }
+
+
+      // ----------------------------------------------
+      // ACTUALIZAR CONTADORES GLOBALES
+      // ----------------------------------------------
+
+      updateGlobalCounters();
 
     }
   );
 
 }
 
-function watchGlobalCounters() {
 
-  const postsRef = ref(db, "posts");
+// ============================================================
+// CONTADORES GLOBALES
+// ============================================================
 
-  onValue(postsRef, snapshot => {
+function updateGlobalCounters() {
 
-    const allPosts = snapshot.val() || {};
-
-    let likes = 0;
-    let comments = 0;
-    let shares = 0;
-    let saves = 0;
-
-    for (const postId in allPosts) {
-
-      const post = allPosts[postId] || {};
-
-      likes += Number(post.like || 0);
-      comments += Number(post.comment || 0);
-      shares += Number(post.share || 0);
-      saves += Number(post.save || 0);
-
-    }
-
-    const totalPosts = window.posts.length;
-
-    const likeCounter =
-      document.getElementById("total-like");
-
-    const commentCounter =
-      document.getElementById("total-comment");
-
-    const shareCounter =
-      document.getElementById("total-share");
-
-    const saveCounter =
-      document.getElementById("total-save");
+  const totalPosts =
+    Array.isArray(window.posts)
+      ? window.posts.length
+      : 0;
 
 
-    if (likeCounter) {
+  let likes = 0;
 
-      likeCounter.textContent =
-        `${likes}/${totalPosts}`;
+  let comments = 0;
 
-    }
+  let shares = 0;
 
-
-    if (commentCounter) {
-
-      commentCounter.textContent =
-        `${comments}/${totalPosts}`;
-
-    }
+  let saves = 0;
 
 
-    if (shareCounter) {
+  Object.values(
+    globalStats
+  ).forEach(stats => {
 
-      shareCounter.textContent =
-        `${shares}/${totalPosts}`;
+    likes +=
+      Number(
+        stats.like || 0
+      );
 
-    }
+
+    comments +=
+      Number(
+        stats.comment || 0
+      );
 
 
-    if (saveCounter) {
+    shares +=
+      Number(
+        stats.share || 0
+      );
 
-      saveCounter.textContent =
-        `${saves}/${totalPosts}`;
 
-    }
+    saves +=
+      Number(
+        stats.save || 0
+      );
 
   });
+
+
+  const likeCounter =
+    document.getElementById(
+      "total-like"
+    );
+
+
+  const commentCounter =
+    document.getElementById(
+      "total-comment"
+    );
+
+
+  const shareCounter =
+    document.getElementById(
+      "total-share"
+    );
+
+
+  const saveCounter =
+    document.getElementById(
+      "total-save"
+    );
+
+
+  if (likeCounter) {
+
+    likeCounter.textContent =
+      `${likes}/${totalPosts}`;
+
+  }
+
+
+  if (commentCounter) {
+
+    commentCounter.textContent =
+      `${comments}/${totalPosts}`;
+
+  }
+
+
+  if (shareCounter) {
+
+    shareCounter.textContent =
+      `${shares}/${totalPosts}`;
+
+  }
+
+
+  if (saveCounter) {
+
+    saveCounter.textContent =
+      `${saves}/${totalPosts}`;
+
+  }
 
 }
 
 
-watchGlobalCounters();
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
+
+updateGlobalCounters();
