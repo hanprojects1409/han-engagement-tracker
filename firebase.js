@@ -49,6 +49,11 @@ export const anonymousUser =
   signInAnonymously(auth)
     .then(result => {
 
+      alert(
+        "✅ AUTH FUNCIONA\n\nUID:\n" +
+        result.user.uid
+      );
+
       console.log(
         "Firebase Anonymous UID:",
         result.user.uid
@@ -58,6 +63,13 @@ export const anonymousUser =
 
     })
     .catch(error => {
+
+      alert(
+        "❌ ERROR DE AUTH\n\n" +
+        error.code +
+        "\n\n" +
+        error.message
+      );
 
       console.error(
         "Anonymous authentication error:",
