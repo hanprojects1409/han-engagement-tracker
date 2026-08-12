@@ -643,6 +643,14 @@ async function updateFirebaseInteraction(
       userSnapshot.exists() &&
       userSnapshot.val() === true;
 
+        console.log(
+      "User interaction state:",
+      postId,
+      action,
+      userCompleted
+    );
+  
+    
   try {
 
     const snapshot =
