@@ -20,14 +20,9 @@ const generatedComment = document.getElementById("generated-comment");
 const languageSelect = document.getElementById("comment-language");
 const openInstagramBtn = document.getElementById("open-instagram-btn");
 
-const copyHashtagsBtn =
-  document.getElementById("copy-hashtags-btn");
-
-const hashtagsContainer =
-  document.getElementById("hashtags");
-
-const container =
-  document.getElementById("posts-container");
+const copyHashtagsBtn = document.getElementById("copy-hashtags-btn");
+const hashtagsContainer = document.getElementById("hashtags");
+const container = document.getElementById("posts-container");
 
 let currentPost = null;
 
@@ -38,541 +33,276 @@ const fixedHashtags = [
 ];
 
 if (hashtagsContainer) {
-  hashtagsContainer.innerHTML =
-    fixedHashtags
-      .map(tag => `<span>${tag}</span>`)
-      .join("");
+  hashtagsContainer.innerHTML = fixedHashtags
+    .map(tag => `<span>${tag}</span>`)
+    .join("");
 }
 
+function createPosts() {
+  if (!container || !Array.isArray(window.posts)) return;
 
-window.posts.forEach(post => {
+  container.innerHTML = "";
 
-  const card =
-    document.createElement("div");
+  window.posts.forEach(post => {
+    const card = document.createElement("div");
 
-  card.classList.add("post-card");
+    card.classList.add("post-card");
 
-  card.innerHTML = `
-    <div class="post-info">
+    card.innerHTML = `
+      <div class="post-info">
+        <h3>${post.id}</h3>
+        <p>${post.platform}</p>
 
-      <h3>${post.id}</h3>
+        <div class="post-stats">
+          ❤️ <span id="like-${post.id}">0</span>
+          💬 <span id="comment-${post.id}">0</span>
+          📤 <span id="share-${post.id}">0</span>
+          🔖 <span id="save-${post.id}">0</span>
+          🔁 <span id="repost-${post.id}">0</span>
 
-      <p>${post.platform}</p>
-
-      <div class="post-stats">
-
-        ❤️ <span id="like-${post.id}">0</span>
-
-        💬 <span id="comment-${post.id}">0</span>
-
-        📤 <span id="share-${post.id}">0</span>
-
-        🔖 <span id="save-${post.id}">0</span>
-
-        🔁 <span id="repost-${post.id}">0</span>
-
-        <div
-          class="engagement-badge"
-          id="badge-${post.id}">
+          <div
+            class="engagement-badge"
+            id="badge-${post.id}">
+          </div>
         </div>
 
+        <div class="rating">⭐</div>
       </div>
+    `;
 
-      <div class="rating">⭐</div>
+    card.addEventListener("click", () => {
+      openModal(post);
+    });
 
-    </div>
-  `;
+    container.appendChild(card);
 
-  card.addEventListener("click", () => {
-    openModal(post);
+    watchPostStats(post.id);
   });
-
-  container.appendChild(card);
-
-  watchPostStats(post.id);
-});
-
+}
 
 function openModal(post) {
-
   currentPost = post;
 
-  modalTitle.textContent =
-    post.id;
+  if (modalTitle) {
+    modalTitle.textContent = post.id;
+  }
 
-  openPostBtn.onclick = () => {
-
-    window.open(
-      post.link,
-      "_blank"
-    );
-
-  };
+  if (openPostBtn) {
+    openPostBtn.onclick = () => {
+      window.open(post.link, "_blank");
+    };
+  }
 
   document
     .querySelectorAll("#modal .action-btn")
     .forEach(btn => {
-
-      const action =
-        btn.dataset.action;
-
-      const key =
-        `post-${post.id}-${action}`;
-
+      const action = btn.dataset.action;
+      const key = `post-${post.id}-${action}`;
       const completed =
         localStorage.getItem(key) === "true";
 
-      btn.classList.toggle(
-        "completed",
-        completed
-      );
-
+      btn.classList.toggle("completed", completed);
     });
 
-  modal.classList.add("active");
+  if (modal) {
+    modal.classList.add("active");
+  }
 }
-
 
 document
   .querySelectorAll("#modal .action-btn")
   .forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (!currentPost) return;
 
-    btn.addEventListener(
-      "click",
-      async () => {
+      const action = btn.dataset.action;
 
-        if (!currentPost) return;
+      if (action === "comment") {
+        if (commentModal) {
+          commentModal.classList.add("active");
+        }
+        return;
+      }
 
-        const action =
-          btn.dataset.action;
+      if (action === "share") {
+        const wasCompleted =
+          btn.classList.contains("completed");
 
-
-        if (action === "comment") {
-
-          commentModal.classList.add(
-            "active"
+        try {
+          await navigator.clipboard.writeText(
+            currentPost.link
           );
+        } catch {}
 
-          return;
+        btn.classList.add("completed");
+
+        localStorage.setItem(
+          `post-${currentPost.id}-share`,
+          "true"
+        );
+
+        if (!wasCompleted) {
+          await addGlobalInteraction(
+            currentPost.id,
+            "share",
+            1
+          );
         }
 
+        return;
+      }
 
-        if (action === "share") {
+      if (
+        action === "like" ||
+        action === "save" ||
+        action === "repost"
+      ) {
+        const wasCompleted =
+          btn.classList.contains("completed");
 
-          const wasCompleted =
-            btn.classList.contains(
-              "completed"
-            );
+        btn.classList.toggle("completed");
 
-          try {
+        const completed =
+          btn.classList.contains("completed");
 
-            await navigator.clipboard.writeText(
-              currentPost.link
-            );
+        localStorage.setItem(
+          `post-${currentPost.id}-${action}`,
+          completed ? "true" : "false"
+        );
 
-          } catch {}
-
-          btn.classList.add(
-            "completed"
+        if (!wasCompleted && completed) {
+          await addGlobalInteraction(
+            currentPost.id,
+            action,
+            1
           );
-
-          localStorage.setItem(
-            `post-${currentPost.id}-share`,
-            "true"
-          );
-
-          if (!wasCompleted) {
-
-            await addGlobalInteraction(
-              currentPost.id,
-              "share"
-  );
-
-  updateGlobalCounters();
-
-}
-
-          return;
         }
 
-
-        if (
-          action === "like" ||
-          action === "save" ||
-          action === "repost"
-        ) {
-
-          const wasCompleted =
-            btn.classList.contains(
-              "completed"
-            );
-
-          btn.classList.toggle(
-            "completed"
+        if (wasCompleted && !completed) {
+          await addGlobalInteraction(
+            currentPost.id,
+            action,
+            -1
           );
-
-          const completed =
-            btn.classList.contains(
-              "completed"
-            );
-
-          localStorage.setItem(
-            `post-${currentPost.id}-${action}`,
-            completed ? "true" : "false"
-          );
-
-          if (
-  !wasCompleted &&
-  completed
-) {
-
-  alert("voy a Firebase");
-
-  await addGlobalInteraction(
-    currentPost.id,
-    action
-  );
-
-}
-
-  updateGlobalCounters();
-
-}
-
-          return;
         }
-    );
-
+      }
+    });
   });
 
+if (closeModal) {
+  closeModal.addEventListener("click", () => {
+    modal.classList.remove("active");
+  });
+}
 
-closeModal.addEventListener(
-  "click",
-  () => {
+if (closeCommentModal) {
+  closeCommentModal.addEventListener("click", () => {
+    commentModal.classList.remove("active");
+  });
+}
 
-    modal.classList.remove(
-      "active"
-    );
+if (pickCommentBtn) {
+  pickCommentBtn.addEventListener("click", () => {
+    const language = languageSelect.value;
+    const comments = window.comments?.[language];
 
-  }
-);
-
-
-closeCommentModal.addEventListener(
-  "click",
-  () => {
-
-    commentModal.classList.remove(
-      "active"
-    );
-
-  }
-);
-
-
-pickCommentBtn.addEventListener(
-  "click",
-  () => {
-
-    const language =
-      languageSelect.value;
-
-    const comments =
-      window.comments?.[language];
-
-    if (
-      !comments ||
-      comments.length === 0
-    ) {
-
+    if (!comments || comments.length === 0) {
       generatedComment.textContent =
         "No comments available for this language.";
-
       return;
     }
 
     const randomIndex =
-      Math.floor(
-        Math.random() *
-        comments.length
-      );
+      Math.floor(Math.random() * comments.length);
 
     generatedComment.textContent =
       comments[randomIndex];
+  });
+}
 
-  }
-);
+if (copyCommentBtn) {
+  copyCommentBtn.addEventListener(
+    "click",
+    async () => {
+      if (!currentPost) return;
 
+      const text =
+        generatedComment.textContent.trim();
 
-copyCommentBtn.addEventListener(
-  "click",
-  async () => {
+      if (
+        !text ||
+        text === "Generate a comment" ||
+        text === "No comments available for this language."
+      ) {
+        return;
+      }
 
-    if (!currentPost) return;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {}
 
-    const text =
-      generatedComment.textContent.trim();
+      const commentBtn =
+        document.querySelector(
+          '#modal .action-btn[data-action="comment"]'
+        );
 
-    if (
-      !text ||
-      text === "Generate a comment"
-    ) {
+      if (!commentBtn) return;
 
-      return;
+      const wasCompleted =
+        commentBtn.classList.contains("completed");
+
+      commentBtn.classList.add("completed");
+
+      localStorage.setItem(
+        `post-${currentPost.id}-comment`,
+        "true"
+      );
+
+      if (!wasCompleted) {
+        await addGlobalInteraction(
+          currentPost.id,
+          "comment",
+          1
+        );
+      }
     }
+  );
+}
 
-    try {
+if (openInstagramBtn) {
+  openInstagramBtn.addEventListener(
+    "click",
+    () => {
+      if (!currentPost) return;
 
-      await navigator.clipboard.writeText(
-        text
+      window.open(
+        currentPost.link,
+        "_blank"
       );
-
-    } catch {}
-
-
-    const commentBtn =
-      document.querySelector(
-        '#modal .action-btn[data-action="comment"]'
-      );
-
-    if (!commentBtn) return;
-
-    const wasCompleted =
-      commentBtn.classList.contains(
-        "completed"
-      );
-
-    commentBtn.classList.add(
-      "completed"
-    );
-
-    localStorage.setItem(
-      `post-${currentPost.id}-comment`,
-      "true"
-    );
-
-    if (!wasCompleted) {
-
-      addGlobalInteraction(
-        currentPost.id,
-        "comment"
-      );
-
     }
-
-  }
-);
-
-
-openInstagramBtn.addEventListener(
-  "click",
-  () => {
-
-    if (!currentPost) return;
-
-    window.open(
-      currentPost.link,
-      "_blank"
-    );
-
-  }
-);
-
+  );
+}
 
 if (copyHashtagsBtn) {
-
   copyHashtagsBtn.addEventListener(
     "click",
     async () => {
-
       const text =
         fixedHashtags.join(" ");
 
       try {
-
-        await navigator.clipboard.writeText(
-          text
-        );
+        await navigator.clipboard.writeText(text);
 
         copyHashtagsBtn.textContent =
           "🌟 Hashtags copied";
 
-        setTimeout(
-          () => {
-
-            copyHashtagsBtn.textContent =
-              "📋 Copy hashtags";
-
-          },
-          1500
-        );
-
+        setTimeout(() => {
+          copyHashtagsBtn.textContent =
+            "📋 Copy hashtags";
+        }, 1500);
       } catch {}
-
     }
   );
-
-}
-
-async function addGlobalInteraction(
-
-  postId,
-
-  action
-
-) {
-
-  const postRef =
-    ref(
-      db,
-      `posts/${postId}/${action}`
-    );
-
-  const snapshot =
-    await get(postRef);
-
-  let count = 0;
-
-  if (snapshot.exists()) {
-
-    count =
-      Number(snapshot.val());
-
-  }
-
-  await set(
-    postRef,
-    count + 1
-  );
-
-  await updateGlobalCounters();
-
-}
-
-function watchPostStats(postId) {
-
-  const postRef =
-    ref(
-      db,
-      `posts/${postId}`
-    );
-
-  onValue(
-    postRef,
-    snapshot => {
-
-      const data =
-        snapshot.val() || {};
-
-      const likes =
-        data.like || 0;
-
-      const comments =
-        data.comment || 0;
-
-      const shares =
-        data.share || 0;
-
-      const saves =
-        data.save || 0;
-
-      const reposts =
-        data.repost || 0;
-
-
-      const likeElement =
-        document.getElementById(
-          `like-${postId}`
-        );
-
-      const commentElement =
-        document.getElementById(
-          `comment-${postId}`
-        );
-
-      const shareElement =
-        document.getElementById(
-          `share-${postId}`
-        );
-
-      const saveElement =
-        document.getElementById(
-          `save-${postId}`
-        );
-
-      const repostElement =
-        document.getElementById(
-          `repost-${postId}`
-        );
-
-
-      if (likeElement) {
-
-        likeElement.textContent =
-          likes;
-
-      }
-
-      if (commentElement) {
-
-        commentElement.textContent =
-          comments;
-
-      }
-
-      if (shareElement) {
-
-        shareElement.textContent =
-          shares;
-
-      }
-
-      if (saveElement) {
-
-        saveElement.textContent =
-          saves;
-
-      }
-
-      if (repostElement) {
-
-        repostElement.textContent =
-          reposts;
-
-      }
-
-
-      const total =
-        likes +
-        comments +
-        shares +
-        saves +
-        reposts;
-
-
-      const badge =
-        document.getElementById(
-          `badge-${postId}`
-        );
-
-      if (!badge) return;
-
-
-      if (total < 25) {
-
-        badge.textContent =
-          "🔥 Needs engagement";
-
-      } else {
-
-        badge.textContent =
-          "✨ Active";
-
-      }
-
-    }
-  );
-
 }
 
 async function addGlobalInteraction(postId, action) {
@@ -589,7 +319,9 @@ async function addGlobalInteraction(postId, action) {
     let count = 0;
 
     if (snapshot.exists()) {
+
       count = Number(snapshot.val());
+
     }
 
     await set(
@@ -597,19 +329,16 @@ async function addGlobalInteraction(postId, action) {
       count + 1
     );
 
-    await updateGlobalCounters();
-
   } catch (error) {
 
     console.error(
-      "Error guardando interacción:",
+      "Error loading interaction:",
       error
     );
 
   }
 
 }
-
 
 function watchPostStats(postId) {
 
@@ -668,28 +397,38 @@ function watchPostStats(postId) {
 
 
       if (likeElement) {
+
         likeElement.textContent =
           likes;
+
       }
 
       if (commentElement) {
+
         commentElement.textContent =
           comments;
+
       }
 
       if (shareElement) {
+
         shareElement.textContent =
           shares;
+
       }
 
       if (saveElement) {
+
         saveElement.textContent =
           saves;
+
       }
 
       if (repostElement) {
+
         repostElement.textContent =
           reposts;
+
       }
 
 
@@ -705,6 +444,7 @@ function watchPostStats(postId) {
         document.getElementById(
           `badge-${postId}`
         );
+
 
       if (!badge) return;
 
@@ -726,113 +466,79 @@ function watchPostStats(postId) {
 
 }
 
+function watchGlobalCounters() {
 
-async function updateGlobalCounters() {
+  const postsRef = ref(db, "posts");
 
-  const totalPosts =
-    window.posts.length;
+  onValue(postsRef, snapshot => {
 
-  let likes = 0;
-  let comments = 0;
-  let shares = 0;
-  let saves = 0;
+    const allPosts = snapshot.val() || {};
 
+    let likes = 0;
+    let comments = 0;
+    let shares = 0;
+    let saves = 0;
 
-  for (const post of window.posts) {
+    for (const postId in allPosts) {
 
-    const postRef =
-      ref(
-        db,
-        `posts/${post.id}`
-      );
+      const post = allPosts[postId] || {};
 
-    try {
-
-      const snapshot =
-        await get(postRef);
-
-      if (!snapshot.exists()) {
-        continue;
-      }
-
-      const data =
-        snapshot.val();
-
-      likes +=
-        Number(data.like || 0);
-
-      comments +=
-        Number(data.comment || 0);
-
-      shares +=
-        Number(data.share || 0);
-
-      saves +=
-        Number(data.save || 0);
-
-    } catch (error) {
-
-      console.error(
-        "Error leyendo:",
-        post.id,
-        error
-      );
+      likes += Number(post.like || 0);
+      comments += Number(post.comment || 0);
+      shares += Number(post.share || 0);
+      saves += Number(post.save || 0);
 
     }
 
-  }
+    const totalPosts = window.posts.length;
+
+    const likeCounter =
+      document.getElementById("total-like");
+
+    const commentCounter =
+      document.getElementById("total-comment");
+
+    const shareCounter =
+      document.getElementById("total-share");
+
+    const saveCounter =
+      document.getElementById("total-save");
 
 
-  const likeCounter =
-    document.getElementById(
-      "total-like"
-    );
+    if (likeCounter) {
 
-  const commentCounter =
-    document.getElementById(
-      "total-comment"
-    );
+      likeCounter.textContent =
+        `${likes}/${totalPosts}`;
 
-  const shareCounter =
-    document.getElementById(
-      "total-share"
-    );
-
-  const saveCounter =
-    document.getElementById(
-      "total-save"
-    );
+    }
 
 
-  if (likeCounter) {
+    if (commentCounter) {
 
-    likeCounter.textContent =
-      `${likes}/${totalPosts}`;
+      commentCounter.textContent =
+        `${comments}/${totalPosts}`;
 
-  }
+    }
 
-  if (commentCounter) {
 
-    commentCounter.textContent =
-      `${comments}/${totalPosts}`;
+    if (shareCounter) {
 
-  }
+      shareCounter.textContent =
+        `${shares}/${totalPosts}`;
 
-  if (shareCounter) {
+    }
 
-    shareCounter.textContent =
-      `${shares}/${totalPosts}`;
 
-  }
+    if (saveCounter) {
 
-  if (saveCounter) {
+      saveCounter.textContent =
+        `${saves}/${totalPosts}`;
 
-    saveCounter.textContent =
-      `${saves}/${totalPosts}`;
+    }
 
-  }
+  });
 
 }
 
 
-updateGlobalCounters();
+watchGlobalCounters();
