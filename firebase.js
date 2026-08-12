@@ -7,6 +7,7 @@ import {
   ref,
   get,
   set,
+  update,
   onValue
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
@@ -90,5 +91,6 @@ export {
   ref,
   get,
   set,
+  update,
   onValue
 };
