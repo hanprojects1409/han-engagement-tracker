@@ -94,6 +94,8 @@ if (
 
     card.innerHTML = `
 
+    console.log("CREANDO:", post.id);
+    
       <div class="post-info">
 
         <h3>${post.id}</h3>
