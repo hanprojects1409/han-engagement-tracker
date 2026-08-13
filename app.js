@@ -612,11 +612,6 @@ async function updateFirebaseInteraction(
 
   const user = getCurrentUser();
 
-  console.log(
-  "USER AT INTERACTION:",
-  user
-);
-
   if (!user) {
     console.error("Firebase user not available");
     return null;
@@ -689,13 +684,6 @@ async function updateFirebaseInteraction(
     await set(
       userInteractionRef,
       change === 1
-    );
-
-    console.log(
-      "Firebase updated:",
-      postId,
-      action,
-      newValue
     );
 
     return newValue;
