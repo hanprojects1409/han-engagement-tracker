@@ -604,64 +604,45 @@ if (copyHashtagsBtn) {
 
 }
 
-
 async function updateFirebaseInteraction(
-
   postId,
-
   action,
-
   change
-
 ) {
 
   const user = getCurrentUser();
 
-
   if (!user) {
-
+    console.error("Firebase user not available");
     return null;
-
   }
 
+  const interactionRef = ref(
+    db,
+    `posts/${postId}/${action}`
+  );
 
-  const interactionRef =
-    ref(
-      db,
-      `posts/${postId}/${action}`
-    );
-
-
-  const userInteractionRef =
-    ref(
-      db,
-      `posts/${postId}/interactions/${user.uid}/${action}`
-    );
-
+  const userInteractionRef = ref(
+    db,
+    `users/${user.uid}/posts/${postId}/${action}`
+  );
 
   try {
 
-
-    const userSnapshot =
-      await get(
-        userInteractionRef
-      );
-
+    const userSnapshot = await get(
+      userInteractionRef
+    );
 
     const userCompleted =
       userSnapshot.exists() &&
       userSnapshot.val() === true;
 
 
-
-
     if (
       change === 1 &&
       userCompleted
     ) {
-
       return null;
-
     }
 
 
@@ -669,64 +650,50 @@ async function updateFirebaseInteraction(
       change === -1 &&
       !userCompleted
     ) {
-
       return null;
-
     }
 
 
-    const snapshot =
-      await get(
-        interactionRef
-      );
-
+    const snapshot = await get(
+      interactionRef
+    );
 
     let currentValue = 0;
-
 
     if (snapshot.exists()) {
 
       currentValue =
-        Number(
-          snapshot.val()
-        );
+        Number(snapshot.val());
 
     }
-
 
     let newValue =
       currentValue + change;
 
 
     if (newValue < 0) {
-
       newValue = 0;
-
     }
 
 
-
-    const updates = {};
-
-
-    updates[
-      `posts/${postId}/${action}`
-    ] = newValue;
-
-
-    updates[
-      `posts/${postId}/interactions/${user.uid}/${action}`
-    ] = change === 1;
-
-
-    await update(
-      ref(db),
-      updates
+    await set(
+      interactionRef,
+      newValue
     );
 
+    await set(
+      userInteractionRef,
+      change === 1
+    );
+
+    console.log(
+      "Firebase updated:",
+      postId,
+      action,
+      newValue
+    );
 
     return newValue;
-
 
   } catch (error) {
 
@@ -736,11 +703,8 @@ async function updateFirebaseInteraction(
     );
 
     return null;
-
   }
-
 }
-
 
 function watchPostStats(postId) {
 
