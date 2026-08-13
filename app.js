@@ -93,8 +93,6 @@ if (
 
 
     card.innerHTML = `
-
-    console.log("CREANDO:", post.id);
     
       <div class="post-info">
 
